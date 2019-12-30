@@ -9,16 +9,24 @@ ARG gid=1000
 ARG git_lfs_version=2.9.1
 
 ENV JENKINS_HOME=/var/jenkins_home \
-    JENKINS_USER=${user}
+    JENKINS_USER=${user} \ 
+    SONAR_SCANNER_VERSION=3.2.0.1227
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl dumb-init git libltdl7 openssh-client procps \
+    && apt-get install -y --no-install-recommends wget unzip curl dumb-init git libltdl7 openssh-client procps \
     && rm -rf /var/lib/apt/lists/* \
     \
     # Install git LFS
     && curl -#LSo git-lfs.deb https://packagecloud.io/github/git-lfs/packages/debian/stretch/git-lfs_${git_lfs_version}_amd64.deb/download.deb \
     && dpkg -i git-lfs.deb \
     && rm -f git-lfs.deb \
+    \
+    # Install sonarqube
+    && wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip \
+    && unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip \
+    && mv sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar \
+    && chmod u+x -R /opt/sonar/bin \
+    && rm sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip \
     \
     # Jenkins is run with user `jenkins`, uid = 1000
     # If you bind mount a volume from the host or a data container,
